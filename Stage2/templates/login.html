@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Website - Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #3498db; /* Blue background */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .login-container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        h1 {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input[type="submit"] {
+            background-color: #3498db; /* Blue button color */
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        input[type="submit"]:hover {
+            background-color: #2980b9; /* Darker blue on hover */
+        }
+        p {
+            font-size: 14px;
+            color: #333;
+        }
+        a {
+            color: #3498db;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login to My Website</h1>
+        <form id="loginForm" action="/loginForm" method="post" name="loginForm">
+            <label for="email">Email:</label><br>
+            <input type="text" id="email" name="email" required><br><br>
+
+            <label for="password">Password:</label><br>
+            <input type="password" id="password" name="password" required><br><br>
+
+            <input type="submit" value="Login"><br><br>
+        </form>
+
+        <p>New User? <a href="/register.html">Register here</a></p>
+        <p>Or </p>
+        <p>Sign in with Google:</p>
+        <a href="/auth_try" id="googleSignIn">
+            <img src="https://developers.google.com/identity/images/g-logo.png" alt="Sign in with Google" style="width: 50px; height: auto;">
+        </a>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>  
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('loginForm').addEventListener('submit', function(event) {
+                // Prevent form submission if username or password is empty
+                var email = document.getElementById('email').value;
+                var password = document.getElementById('password').value;
+                if (!email || !password) {
+                    event.preventDefault();
+                    alert('Please enter both email and password.');
+                }
+            });
+
+            // Detect when the user navigates back to the page and reload it
+            
+        });
+        // window.onpageshow = function(event) {
+        //     if (event.persisted) {
+        //         window.location.reload();
+        //     }
+        // };
+
+    // Check if login is blocked due to multiple failed attempts
+    $(document).ready(function() {
+        if ("{{ session.get('login_blocked') }}" == "True") {
+            // Disable form fields and display message
+            $('#email, #password').prop('disabled', true);
+            $('#loginForm').prepend('<p style="color: red;">Too many failed login attempts. Please wait for 30 seconds before trying again.</p>');
+            // Enable fields and remove message after 30 seconds
+            setTimeout(function() {
+                $('#email, #password').prop('disabled', false);
+                $('#loginForm p').remove();
+            }, 30000);
+        }
+    });
+
+    </script>
+</body>
+</html>
