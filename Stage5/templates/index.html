@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Segmentation</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            padding-top: 50px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 600px;
+        }
+        #segmented-image {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center">Upload Image for Segmentation</h1>
+        <form id="upload-form" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="file">Choose an image</label>
+                <input type="file" class="form-control-file" id="file" name="file" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+        <div id="status" class="alert alert-info mt-3" role="alert" style="display: none;">
+            <span id="status-text"></span>
+        </div>
+        <div class="mt-3">
+            <img id="segmented-image" class="img-fluid" alt="Segmented Image">
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#upload-form').submit(function(event) {
+                event.preventDefault();
+                var formData = new FormData(this);
+                $('#status').show();
+                $('#status-text').text('Uploading and processing image...');
+                $.ajax({
+                    url: '/upload',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(data) {
+                        checkTaskStatus(data.task_id);
+                    },
+                    error: function() {
+                        $('#status-text').text('An error occurred while uploading the file.');
+                    }
+                });
+            });
+
+            function checkTaskStatus(taskId) {
+                $.getJSON(`/status/${taskId}`, function(data) {
+                    if (data.state === 'PENDING') {
+                        $('#status-text').text('Processing...');
+                        setTimeout(function() {
+                            checkTaskStatus(taskId);
+                        }, 2000);
+                    } else if (data.state === 'SUCCESS') {
+                        $('#status-text').text('Processing complete!');
+                        $('#segmented-image').attr('src', data.result).show();
+                    } else {
+                        $('#status-text').text('An error occurred: ' + data.status);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
